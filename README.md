@@ -248,9 +248,100 @@ OWASP Juice Shop and any contributions are Copyright © by Bjoern Kimminich & th
 
 ## Local Fork with Compose and NGINX
 
-to pull from original repo and merge into fork:
+### To create local TLC Certs
+
+Nginx requires a TLS certificate and private key to serve Juice Shop over HTTPS.
+
+These files are excluded from Git via .gitignore and must be generated locally after cloning the repository.
+
+From the repository root, create the certificate directory:
+```bash
+mkdir -p certs
+```
+
+Generate a self-signed certificate for localhost:
+```bash
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout certs/localhost.key \
+  -out certs/localhost.crt \
+  -subj "/CN=localhost" \
+  -addext "subjectAltName=DNS:localhost"
+```
+
+This creates:
+- Public TLS certificate: certs/localhost.crt
+- Private TLS key: certs/localhost.key
+
+Security: Never commit the private key to version control. The entire `/certs` directory is excluded from Git.
+
+The certificate is self-signed, so browsers will display a certificate trust warning. This is expected for the local development environment.
+
+Once the certificates are generated, start the application from project root directory:
+```bash
+docker compose up -d
+```
+The application will be available at:
+- HTTP: http://localhost:3080
+- HTTPS: https://localhost:3443
+
+Both endpoints use Nginx as a reverse proxy to the Juice Shop container.
+
+
+### Git Remote Configuration
+
+This repository is a fork of the official OWASP Juice Shop project.
+
+Two Git remotes are used to maintain local customizations while incorporating updates from the original repository.
+
+- Personal Fork - origin: git@github.com:carolyn-idi/juice-shop.git
+
+- Offical OWASP Juice Shop repo - upstream: https://github.com/juice-shop/juice-shop.git
+
+### Configure Remotes
+
+When cloning the personal fork, Git automatically configures origin:
+```bash
+git clone git@github.com:carolyn-idi/juice-shop.git
+cd juice-shop
+```
+
+Add the official repository as upstream:
+
+```bash
+git remote add upstream https://github.com/juice-shop/juice-shop.git
+```
+
+Verify both remotes:
+
+```bash
+git remote -v
+```
+
+Updating from the Original Repository
+
+Fetch the latest changes from OWASP Juice Shop:
+
 ```bash
 git fetch upstream
+```
+
+Review commits that have not yet been incorporated:
+
+```bash
+git log --oneline master..upstream/master
+```
+
+Merge upstream changes into the local master branch:
+
+```bash
+git switch master
 git merge upstream/master
+```
+
+Resolve any merge conflicts if necessary, then push the updated branch to the personal fork:
+
+```bash
 git push origin master
 ```
+
+Note: Always fetch and review upstream changes before merging. This helps preserve local Docker, Nginx, and development configurations.
