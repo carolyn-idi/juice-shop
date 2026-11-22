@@ -246,9 +246,11 @@ OWASP Juice Shop and any contributions are Copyright © by Bjoern Kimminich & th
 ![Juice Shop Logo](https://raw.githubusercontent.com/juice-shop/juice-shop/master/frontend/src/assets/public/images/JuiceShop_Logo_400px.png)
 
 
-## Local Copy witb Compose and NGINX
+## Local Fork with Compose and NGINX
 
 to pull from original repo and merge into fork:
-`git fetch upstream`
-`git merge upstream/master`
-`git push origin master`
+```bash
+git fetch upstream
+git merge upstream/master
+git push origin master
+```
